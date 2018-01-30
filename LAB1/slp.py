@@ -36,17 +36,16 @@ class Perceptron(object):
 		for i in range (W_rows):
 			self.W[i] = np.random.normal(0, 0.1, W_cols)
 
-
 	
 	def predict(self, X, T):
 		self.setup(X, T)
 		net_input = np.dot(self.W, self.X)
 		for i in range(net_input.shape[0]):
-				for j in range (net_input.shape[1]):
-					if net_input[i,j] >= 0:
-						net_input[i,j] =  1
-					else:
-						net_input[i,j] =  -1
+			for j in range (net_input.shape[1]):
+				if net_input[i,j] >= 0:
+					net_input[i,j] =  1
+				else:
+					net_input[i,j] =  -1
 		print("Actual output")
 		print(net_input)
 		print("Ideal output")
@@ -55,7 +54,6 @@ class Perceptron(object):
 		print(net_input - self.T)
 		return(net_input)
 		
-
 
 	def learn(self):
 		#For each epoch
