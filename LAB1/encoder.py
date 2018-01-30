@@ -10,7 +10,7 @@ def gen_inputs(size):
 
 eta = 0.01 
 epochs = 10000
-hidden = 3
+hidden = 8
 encode= 8
 
 

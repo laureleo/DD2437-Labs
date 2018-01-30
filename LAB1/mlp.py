@@ -28,11 +28,11 @@ class MLP(object):
 
 
 	def init_weights(self):
-		#V correspond to weights from X to hidden - the first layer
+		#V correspond to weights from X to hidden
 		V_rows = self.hidden
 		V_cols = self.X.shape[0]
 
-		#W correspond to weights from hidden  to hidden - the first layer.
+		#W correspond to weights from hidden to output
 		W_rows = self.T.shape[0]
 
 		# +1 since we add input from the bias neuron
