@@ -47,9 +47,9 @@ class Perceptron(object):
 						net_input[i,j] =  1
 					else:
 						net_input[i,j] =  -1
-		print("Predicted")
+		print("Actual output")
 		print(net_input)
-		print("Actual is")
+		print("Ideal output")
 		print(self.T)
 		print("Error is")
 		print(net_input - self.T)
