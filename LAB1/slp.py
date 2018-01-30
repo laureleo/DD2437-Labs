@@ -113,5 +113,5 @@ out3= [[-1,-1, 1],[1,-1,1]]
 eta = 0.01
 epochs = 100
 perceptron = Perceptron(eta, epochs)
-perceptron.run_pct(in1, out1)
-perceptron.predict(in1, out1)
+perceptron.run_pct(in3, out3)
+perceptron.predict(in3, out3)
