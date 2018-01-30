@@ -14,7 +14,7 @@ class MLP(object):
 	def learn(self, X, T):
 		self.setup(X, T)
 		self.init_weights()
-		for i in range(epochs):
+		for i in range(self.epochs):
 			self.forward_pass()
 			self.backward_pass()
 			self.update_weights()
@@ -29,14 +29,14 @@ class MLP(object):
 
 	def init_weights(self):
 		#V correspond to weights from X to hidden - the first layer
-		V_rows = hidden
+		V_rows = self.hidden
 		V_cols = self.X.shape[0]
 
 		#W correspond to weights from hidden  to hidden - the first layer.
 		W_rows = self.T.shape[0]
 
 		# +1 since we add input from the bias neuron
-		W_cols = hidden + 1
+		W_cols = self.hidden + 1
 
 		#Create a weight matrix for connections from input to hidden
 		self.V = np.zeros(shape=(V_rows, V_cols))
@@ -99,53 +99,28 @@ class MLP(object):
 
 
 	def update_weights(self):
-		delta_W = -eta * np.dot(self.delta_O, np.transpose(self.H_output))
-		delta_V = -eta * np.dot(self.delta_H, np.transpose(self.X))
+		delta_W = -self.eta * np.dot(self.delta_O, np.transpose(self.H_output))
+		delta_V = -self.eta * np.dot(self.delta_H, np.transpose(self.X))
 		self.W += delta_W
 		self.V += delta_V
 
-eta = 0.01
-epochs = 10000
-hidden = 4 
-
-in1 =[
-	[1,1,-1,-1],
-	[1,-1,1,-1]
-	]
-
-out1 =[[1,1,1,-1]]
-
-
-in2 = [
-	[-2,4,-1],
-	[4,1,-1],
-	[1, 6, -1],
-	[2, 4, -1],
-	[6, 2, -1],
-	]
-
-out2 = [[-1,-1, 1]]
-
-in3 = [
-	[-2,4,-1],
-	[4,1,-1],
-	[1, 6, -1],
-	[2, 4, -1],
-	[6, 2, -1],
-	]
-
-out3= [[-1,-1, 1],[1,-1,1]]
-
-in4 = [
-	[1],
-	[1]
-	]
-out4 = [[1]]
-	
-
-MLP = MLP(eta, epochs, hidden)
-MLP.learn(in3, out3)
-MLP.predict(in3, out3)
-
-
-
+# Example use
+# 
+# 
+# in1 = [
+# [-2,4,-1],
+# [4,1,-1],
+# [1, 6, -1],
+# [2, 4, -1],
+# [6, 2, -1],
+# ]
+# 
+# out1 = [[-1,-1, 1],[1,-1,1]]
+# 
+# eta = 0.01
+# epochs = 1000
+# hidden = 10
+# 
+# MLP = MLP(eta, epochs, hidden)
+# MLP.learn(in1, out1)
+# MLP.predict(in1, out1)

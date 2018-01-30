@@ -80,38 +80,17 @@ class Perceptron(object):
 			self.W += update 
 
 
-#Training samples
-in1 =[
-	[1,1,-1,-1],
-	[1,-1,1,-1]
-	]
-
-out1 =[[1,1,1,-1]]
-
-
-in2 = [
-	[-2,4,-1],
-	[4,1,-1],
-	[1, 6, -1],
-	[2, 4, -1],
-	[6, 2, -1],
-	]
-
-out2 = [[-1,-1, 1]]
-
-in3 = [
-	[-2,4,-1],
-	[4,1,-1],
-	[1, 6, -1],
-	[2, 4, -1],
-	[6, 2, -1],
-	]
-
-out3= [[-1,-1, 1],[1,-1,1]]
-
-#Run the perceptron
-eta = 0.01
-epochs = 100
-perceptron = Perceptron(eta, epochs)
-perceptron.run_pct(in3, out3)
-perceptron.predict(in3, out3)
+#Example use
+#
+#in1 =[
+#	[1,1,-1,-1],
+#	[1,-1,1,-1]
+#	]
+#
+#out1 =[[1,1,1,-1]]
+#
+#eta = 0.01
+#epochs = 100
+#pct = Perceptron(eta, epochs)
+#pct.run_pct(in1, out1)
+#pct.predict(in1, out1)
