@@ -108,6 +108,11 @@ class MLP(object):
 		self.W += delta_W
 		self.V += delta_V
 
+	def view_w(self):
+		return self.W
+
+	def view_v(self):
+		return self.V
 # Example use
 # 
 # 
