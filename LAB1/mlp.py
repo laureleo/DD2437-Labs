@@ -11,10 +11,19 @@ class MLP(object):
 		self.hidden = hidden
 
 
+	#Start to train a network from scratch. 
 	def learn(self, X, T):
 		self.setup(X, T)
 		self.init_weights()
 		for i in range(self.epochs):
+			self.forward_pass()
+			self.backward_pass()
+			self.update_weights()
+	
+
+	#Continues the learning process without resetting the weights
+	def continue_learning(self, epochs):
+		for i in range(epochs):
 			self.forward_pass()
 			self.backward_pass()
 			self.update_weights()
@@ -51,12 +60,7 @@ class MLP(object):
 
 	def predict(self, X, T):
 		self.setup(X, T)
-		print("Actual output")
-		print(self.O_output)
-		print("Ideal output")
-		print(self.T)
-		print("Error is")
-		print(self.O_output- self.T)
+		return self.O_output
 
 
 	def forward_pass(self):
@@ -123,4 +127,4 @@ class MLP(object):
 # 
 # MLP = MLP(eta, epochs, hidden)
 # MLP.learn(in1, out1)
-# MLP.predict(in1, out1)
+# print(MLP.predict(in1, out1))
