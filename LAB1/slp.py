@@ -46,12 +46,6 @@ class Perceptron(object):
 					net_input[i,j] =  1
 				else:
 					net_input[i,j] =  -1
-		print("Actual output")
-		print(net_input)
-		print("Ideal output")
-		print(self.T)
-		print("Error is")
-		print(net_input - self.T)
 		return(net_input)
 		
 
@@ -93,4 +87,4 @@ class Perceptron(object):
 #epochs = 100
 #pct = Perceptron(eta, epochs)
 #pct.run_pct(in1, out1)
-#pct.predict(in1, out1)
+#print(pct.predict(in1, out1))
