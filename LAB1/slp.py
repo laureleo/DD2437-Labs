@@ -1,5 +1,12 @@
 import numpy as np
 
+def threshold_function(x):
+	if (x >= 0):
+		return 1
+	else:
+	 	return 0
+	
+
 class Perceptron(object):
 
 	def __init__(self, eta, epochs):
@@ -40,12 +47,7 @@ class Perceptron(object):
 	def predict(self, X, T):
 		self.setup(X, T)
 		net_input = np.dot(self.W, self.X)
-		for i in range(net_input.shape[0]):
-			for j in range (net_input.shape[1]):
-				if net_input[i,j] >= 0:
-					net_input[i,j] =  1
-				else:
-					net_input[i,j] =  -1
+		net_input = threshold_function(net_input)
 		return(net_input)
 		
 
@@ -57,12 +59,7 @@ class Perceptron(object):
 			net_input = np.dot(self.W, self.X)
 			
 			#For each element, apply the activation function
-			for i in range(net_input.shape[0]):
-				for j in range (net_input.shape[1]):
-					if net_input[i,j] >= 0:
-						net_input[i,j] =  1
-					else:
-						net_input[i,j] =  -1
+			net_input = threshold_function(net_input)
 					
 			#Get the error
 			error = net_input - self.T

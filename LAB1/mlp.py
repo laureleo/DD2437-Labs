@@ -68,9 +68,7 @@ class MLP(object):
 		self.H_input = np.dot(self.V, self.X)
 
 		#Apply the activation function
-		for i in range(self.H_input.shape[0]):
-			for j in range(self.H_input.shape[1]):
-				self.H_input[i,j] = phi(self.H_input[i,j])
+		self.H_input = phi(self.H_input)
 
 		#Create and append the bias vector to the input for the output layer
 		bias = np.ones(self.H_input.shape[1])
@@ -80,10 +78,7 @@ class MLP(object):
 		self.O_input = np.dot(self.W, self.H_output)
 
 		#Apply the activation function
-		for i in range(self.O_input.shape[0]):
-			for j in range(self.O_input.shape[1]):
-				self.O_input[i,j] = phi(self.O_input[i,j])
-
+		self.O_input =  phi(self.O_input)
 		self.O_output = self.O_input
 
 
@@ -113,6 +108,7 @@ class MLP(object):
 
 	def view_v(self):
 		return self.V
+
 # Example use
 # 
 # 
