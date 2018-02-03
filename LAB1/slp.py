@@ -1,55 +1,40 @@
 import numpy as np
 
+def threshold_function(x):
+	if (x >= 0):
+		return 1
+	else:
+	 	return 0
+	
+
 class Perceptron(object):
 
 	def __init__(self, eta, epochs):
 		self.eta = eta
 		self.epochs = epochs
 
-	def run_pct(self, x, t):
-		#np.array just ensures that our inputs are recognized as matrices by numpy
-		T = np.array(t)
-		X = np.array(x)
+
+	def run_pct(self, X, T):
+		self.setup(X, T)
+		self.init_weights()
+		self.learn()
+
+
+	def setup(self, X, T):
+		#Convert input into a format numpy can deal with
+		self.T = np.array(T)
+		self.X = np.array(X)
 
 		#Fill a one-dimensional array (with the same number of cols as X) with 1:s. This is the bias vector
-		bias = np.ones(X.shape[1])
+		bias = np.ones(self.X.shape[1])
 
 		#Append the bias vector as the last row in the input matrix
-		X = np.vstack((X, bias))
+		self.X = np.vstack((self.X, bias))
 
-		#Initialize the weights, do the learning and return the final weight matrix
-		self.init_weights(X, T)
-		self.learn(X, T)
-		return self.W
 
-	def learn(self, X, T):
-
-		#For each epoch
-		for i in range(self.epochs):
-
-			#Calculate net input to neuron
-			net_input = np.dot(self.W, X)
-			
-			#For each element, apply the activation function
-			for i in range(net_input.shape[0]):
-				for j in range (net_input.shape[1]):
-					if net_input[i,j] >= 0:
-						net_input[i,j] =  1
-					else:
-						net_input[i,j] =  -1
-					
-			#Get the error
-			error = net_input - T
-
-			#Apply the perceptron learning rule
-			update = -1 * self.eta * np.dot(error, np.transpose(X))
-
-			#Update weights 
-			self.W += update 
-
-	def init_weights(self, X, T):
-		W_rows = output_dimensionality = T.shape[0]
-		W_cols = input_dimensionality = X.shape[0]
+	def init_weights(self):
+		W_rows = output_dimensionality = self.T.shape[0]
+		W_cols = input_dimensionality = self.X.shape[0]
 
 		#Initialize a weight matrix with as many rows as the output dimensionality, as many cols as input dimensionality
 		self.W = np.zeros(shape=(W_rows, W_cols))
@@ -58,37 +43,45 @@ class Perceptron(object):
 		for i in range (W_rows):
 			self.W[i] = np.random.normal(0, 0.1, W_cols)
 
-#Test running the perceptron
-eta = 0.01
-epochs = 10
-in1 =[
-	[1,1,-1,-1],
-	[1,-1,1,-1]
-	]
+	
+	def predict(self, X, T):
+		self.setup(X, T)
+		net_input = np.dot(self.W, self.X)
+		net_input = threshold_function(net_input)
+		return(net_input)
+		
 
-out1 =[[1,1,1,-1]]
+	def learn(self):
+		#For each epoch
+		for i in range(self.epochs):
+
+			#Calculate net input to neuron
+			net_input = np.dot(self.W, self.X)
+			
+			#For each element, apply the activation function
+			net_input = threshold_function(net_input)
+					
+			#Get the error
+			error = net_input - self.T
+
+			#Apply the perceptron learning rule
+			update = -1 * self.eta * np.dot(error, np.transpose(self.X))
+
+			#Update weights 
+			self.W += update 
 
 
-in2 = [
-	[-2,4,-1],
-	[4,1,-1],
-	[1, 6, -1],
-	[2, 4, -1],
-	[6, 2, -1],
-	]
-
-out2 = [[-1,-1, 1]]
-
-in3 = [
-	[-2,4,-1],
-	[4,1,-1],
-	[1, 6, -1],
-	[2, 4, -1],
-	[6, 2, -1],
-	]
-
-out3= [[-1,-1, 1],[1,-1,1]]
-
-perceptron = Perceptron(eta, epochs)
-print("Weights are")
-print(perceptron.run(in1, out1))
+#Example use
+#
+#in1 =[
+#	[1,1,-1,-1],
+#	[1,-1,1,-1]
+#	]
+#
+#out1 =[[1,1,1,-1]]
+#
+#eta = 0.01
+#epochs = 100
+#pct = Perceptron(eta, epochs)
+#pct.run_pct(in1, out1)
+#print(pct.predict(in1, out1))
