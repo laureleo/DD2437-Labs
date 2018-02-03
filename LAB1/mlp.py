@@ -1,14 +1,25 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import os
 
 def phi(x):
 	return 2/(1 + np.exp(-x)) - 1
 
 class MLP(object):
 
-	def __init__(self, eta, epochs, hidden):
+	def __init__(self, eta, epochs, hidden, draw=False, x_draw=[], y_draw=[]):
 		self.eta = eta
 		self.epochs = epochs
 		self.hidden = hidden
+        
+      #Initialisation for the drawnow()
+		self.draw=draw
+		if draw:
+			self.x_draw = x_draw
+			self.y_draw = y_draw
+			self.X_draw, self.Y_draw = np.meshgrid(x_draw, y_draw) 
+		
 
 
 	#Start to train a network from scratch. 
@@ -17,6 +28,7 @@ class MLP(object):
 		self.init_weights()
 		for i in range(self.epochs):
 			self.forward_pass()
+			self.drawnow(i)
 			self.backward_pass()
 			self.update_weights()
 	
@@ -108,6 +120,25 @@ class MLP(object):
 
 	def view_v(self):
 		return self.V
+    
+	def drawnow(self, epoch):
+		if self.draw:
+			if epoch%10 == 0:    
+				fig = plt.figure()
+				ax = fig.gca(projection='3d')    
+				zz = self.O_output.reshape(len(self.x_draw), len(self.y_draw)) #reshaping  result of the forward pass
+				ax.plot_wireframe(self.X_draw,self.Y_draw,zz)
+				title="step by step approximation, epoch="+str(epoch)
+				ax.set_title(title)
+				ax.set_zlim(bottom=-0.6, top=0.2)
+				filename="./Images/Approximation"+str(epoch)+".png"
+				plt.savefig(filename)
+				plt.close(fig)
+    
+		
+		
+       
+      
 
 # Example use
 # 
