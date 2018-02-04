@@ -44,34 +44,55 @@ patterns = np.concatenate((xx.reshape( 1, ndata).copy(), yy.reshape( 1, ndata).c
 
 ###Part 3.3.3
 #Permutations of patterns and target vectors
-perm_patterns = np.random.permutation(patterns)
-perm_targets = np.random.permutation(targets)
+#don't permute like this
+#perm_patterns = np.random.permutation(patterns)
+#perm_targets = np.random.permutation(targets)
+
 
 eta = 0.01
 epochs = 1000
-hidden = 5
-for hidden in [ 3, 5,  10,  20, 25]:
-    MSE=np.zeros(25)
+hidden_layers = [1, 3, 5, 10,  15, 20, 25]
 
-    for n in range(1, 26):
-        #idea but doesn't work cause double dim  shape
-        resized_patterns = np.resize(perm_patterns,(2,n))
-        resized_targets = np.resize(perm_targets,(1,n))
+MSE=np.zeros((len(hidden_layers), 25))
+Ntimes = 10
+for t in range(Ntimes):
+    c=0
+    indices = range(targets.shape[1])
+    indices = np.random.permutation(indices)
+    for hidden in hidden_layers:
+        for n in range(1, 26):
+            resized_patterns = np.zeros((2, n))
+            resized_targets = np.zeros((1,n))
+            for i in range(n):
+                resized_patterns[0][i]=patterns[0][indices[i]]
+                resized_patterns[1][i]=patterns[1][indices[i]]
+                resized_targets[0][i]=targets[0][indices[i]]
+            
+            trained_network = MLP(eta, epochs, hidden)
+            trained_network.learn(resized_patterns, resized_targets)
         
-        trained_network = MLP(eta, epochs, hidden)
-        trained_network.learn(resized_patterns, resized_targets)
+            trained_network.forward_pass(patterns) # in some sort
+            z_pred = trained_network.O_output
+            z_true = perm_targets
+            MSE[c][n-1]+= mean_squared_error(z_true, z_pred)    
+        c+=1
+        
+#    plt.figure()
+#    title="Mean Squared errors for " + str(hidden) + " hidden layers"
+#    plt.plot(MSE)
+#    plt.title(title)
+#    plt.xlabel("n")
+#    plt.show()
+MSE/=Ntimes
+plt.figure()
+plt.xlabel("n")
+title="Mean Squared Errors"
+for k in range(MSE.shape[0]):
+    s = str(hidden_layers[k]) + " hidden layers"
+    plt.plot(range(1, 26), MSE[k], label=s)
+plt.legend()
+plt.show()
     
-        trained_network.forward_pass(patterns) # in some sort
-        z_pred = trained_network.O_output
-        z_true = perm_targets
-        MSE[n-1]= mean_squared_error(z_true, z_pred)    
-        
-    plt.figure()
-    title="Mean Squared errors for " + str(hidden) + " hidden layers"
-    plt.plot(MSE)
-    plt.title(title)
-    plt.ylabel("n")
-    plt.show()
 
 
 
