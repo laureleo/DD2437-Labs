@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mlp import *
+from sklearn.metrics import mean_squared_error
+#from dd2437_LAB1 import perceptron
 
 #Gaussian definition
 def gaussian(x,y):
@@ -12,11 +14,12 @@ x = np.arange(-5.0,5.0,0.5)
 y = np.arange(-5.0,5.0,0.5)
 X,Y = np.meshgrid(x, y) # grid of point
 Z = gaussian(X, Y)
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-#ax.plot_surface(X,Y,Z)
-ax.plot_wireframe(X,Y,Z)
-ax.set_title("Original Gaussian")
+
+#Uncomment to plot the original function
+#fig = plt.figure()
+#ax = fig.gca(projection='3d')
+#ax.plot_wireframe(X,Y,Z)
+#ax.set_title("Original Gaussian")
 
 #patterns (in) and targets(out) matrices
 ndata = len(x)*len(y)
@@ -44,15 +47,31 @@ patterns = np.concatenate((xx.reshape( 1, ndata).copy(), yy.reshape( 1, ndata).c
 perm_patterns = np.random.permutation(patterns)
 perm_targets = np.random.permutation(targets)
 
-for n in range(1, 26):
-    patterns = perm_patterns[:n]
-    targets = perm_targets[:n]
+eta = 0.01
+epochs = 1000
+hidden = 5
+for hidden in [ 3, 5,  10,  20, 25]:
+    MSE=np.zeros(25)
+
+    for n in range(1, 26):
+        #idea but doesn't work cause double dim  shape
+        resized_patterns = np.resize(perm_patterns,(2,n))
+        resized_targets = np.resize(perm_targets,(1,n))
+        
+        trained_network = MLP(eta, epochs, hidden)
+        trained_network.learn(resized_patterns, resized_targets)
     
-    training_network = MLP(eta, epochs, hidden)
-    training_network.learn(patterns, targets)
-    
-    all_network = MLP(eta, epochs, hidden)
-    all_network.learn(perm_patterns, perm_targets)
-    
-    
-    
+        trained_network.forward_pass(patterns) # in some sort
+        z_pred = trained_network.O_output
+        z_true = perm_targets
+        MSE[n-1]= mean_squared_error(z_true, z_pred)    
+        
+    plt.figure()
+    title="Mean Squared errors for " + str(hidden) + " hidden layers"
+    plt.plot(MSE)
+    plt.title(title)
+    plt.ylabel("n")
+    plt.show()
+
+
+

@@ -132,8 +132,8 @@ class perceptron:
         
 
 pct_obj = perceptron(data[:, :-1], data[:, 2:])
-#pct_obj.pcntrain(data[:, :-1], data[:, 2:], 0.01, 1000, 1)
-#print('Weights: \n', pct_obj.weights)
+pct_obj.pcntrain(data[:, :-1], data[:, 2:], 0.01, 1000, 1)
+print('Weights: \n', pct_obj.weights)
 
 pct_obj.deltatrain(data[:, :-1], data[:, 2:], 0.001, 1000, 1)
 print('Weights: \n', pct_obj.weights)

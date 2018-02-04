@@ -13,7 +13,7 @@ class MLP(object):
 		self.epochs = epochs
 		self.hidden = hidden
         
-      #Initialisation for the drawnow()
+      #Initialisation for the draw_now()
 		self.draw=draw
 		if draw:
 			self.x_draw = x_draw
@@ -28,7 +28,7 @@ class MLP(object):
 		self.init_weights()
 		for i in range(self.epochs):
 			self.forward_pass()
-			self.drawnow(i)
+			self.draw_now(i)
 			self.backward_pass()
 			self.update_weights()
 	
@@ -75,9 +75,14 @@ class MLP(object):
 		return self.O_output
 
 
-	def forward_pass(self):
+	def forward_pass(self, X = []):
 		#Calculate net input to hidden layer
-		self.H_input = np.dot(self.V, self.X)
+		if X == []:
+			X= self.X  
+		else:
+			X = np.append(X, np.ones((1, X.shape[1])), axis=0)
+			
+		self.H_input = np.dot(self.V, X)
 
 		#Apply the activation function
 		self.H_input = phi(self.H_input)
@@ -121,7 +126,7 @@ class MLP(object):
 	def view_v(self):
 		return self.V
     
-	def drawnow(self, epoch):
+	def draw_now(self, epoch):
 		if self.draw:
 			if epoch%10 == 0:    
 				fig = plt.figure()
@@ -130,7 +135,7 @@ class MLP(object):
 				ax.plot_wireframe(self.X_draw,self.Y_draw,zz)
 				title="step by step approximation, epoch="+str(epoch)
 				ax.set_title(title)
-				ax.set_zlim(bottom=-0.6, top=0.2)
+				ax.set_zlim(bottom=-0.6, top=0.2) #arbitrary z-axis drawn from auto-scaled a-axis of the final prediction
 				filename="./Images/Approximation"+str(epoch)+".png"
 				plt.savefig(filename)
 				plt.close(fig)
