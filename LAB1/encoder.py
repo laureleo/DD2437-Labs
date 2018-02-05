@@ -28,7 +28,7 @@ def encode (eta, hidden, inputs, epochs):
 	i = 0
 
 	while(not_converged):
-		#Continue learning wit
+		#Continue learning
 		MLP.continue_learning(epochs)
 		error = np.matrix.round(MLP.predict(X, X) - X) 
 		if (np.all(error == 0)):

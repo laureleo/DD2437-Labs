@@ -21,7 +21,6 @@ class MLP(object):
 			self.X_draw, self.Y_draw = np.meshgrid(x_draw, y_draw) 
 		
 
-
 	#Start to train a network from scratch. 
 	def learn(self, X, T):
 		self.setup(X, T)
