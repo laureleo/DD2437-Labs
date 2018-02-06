@@ -6,6 +6,7 @@ Created on Wed Jan 24 14:16:22 2018
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import scipy.linalg
 from scipy.linalg import solve
 
 

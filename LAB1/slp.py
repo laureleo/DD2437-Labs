@@ -39,7 +39,7 @@ class Perceptron(object):
 
 	
 	def predict(self, X, T):
-		self.setup(X, T)
+		self.setup(X, 1)
 		net_input = np.dot(self.W, self.X)
 		for i in range(net_input.shape[0]):
 			for j in range (net_input.shape[1]):
@@ -74,6 +74,9 @@ class Perceptron(object):
 			#Update weights 
 			self.W += update 
 
+	def get_w(self):
+		return self.W
+
 
 #Example use
 #
@@ -89,3 +92,5 @@ class Perceptron(object):
 #pct = Perceptron(eta, epochs)
 #pct.run_pct(in1, out1)
 #print(pct.predict(in1, out1))
+
+#Careful about the format on input/output vectors, they can mess things up.
