@@ -9,11 +9,18 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import SGD
+from keras.utils import plot_model
+from IPython.display import SVG
+from keras.utils.vis_utils import model_to_dot
+
+
 
 
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+
+np.random.seed(9001)
 
 # Parameters for time series
 beta = 0.2
@@ -32,7 +39,7 @@ for i in range(len(x)-tau-1):
     x[j+1] = x[j] + (beta*x[j-tau])/(1 + math.pow(x[j-tau], 10)) - gamma*x[j]
 
 # Show time series
-#plt.plot(x)
+# plt.plot(x)
 
 # Select data for training, validating and testing
 t_start = 300; t_end = 1500
@@ -65,19 +72,39 @@ output_validate = np.transpose(output_ts[:, t_validate])
 ## Keras ANN ##
 # https://keras.io/
 
+# Normalize data
+mu_x = np.mean(input_train, axis=0, keepdims=True)
+mu_y = np.mean(output_train, axis=0, keepdims=True)
+
+sigma_x = np.std(input_train, axis=0, keepdims=True)
+sigma_y = np.std(output_train, axis=0, keepdims=True)
+
+input_train = (input_train-mu_x)/sigma_x
+output_train = (output_train-mu_y)/sigma_y
+
+input_validate = (input_validate-mu_x)/sigma_x
+output_validate = (output_validate-mu_y)/sigma_y
+
+input_test = (input_test-mu_x)/sigma_x
+output_test = (output_test-mu_y)/sigma_y
+
+# Build network
 batch_size = 100
-epochs = 20
+epochs = 100
 
 model = Sequential()
-model.add(Dense(4, activation='tanh', input_dim=5))
-#model.add(Dense(8, activation='relu'))
-model.add(Dense(1, activation='relu'))
+model.add(Dense(3, activation='relu', input_dim=5))
+for i in range(1):
+    model.add(Dense(2, activation='relu'))
+model.add(Dense(1, activation='linear'))
 
 model.summary()
 
+sgd = keras.optimizers.SGD(lr=0.005) #, clipnorm=1.)
+
 model.compile(loss='mean_squared_error',
-              optimizer='sgd',
-              metrics=['mae', 'acc'])
+              optimizer=sgd,
+              metrics=['mse'])
 
 history = model.fit(input_train, output_train,
                     batch_size=batch_size,
@@ -86,11 +113,9 @@ history = model.fit(input_train, output_train,
                     validation_data=(input_validate, output_validate))
 
 score = model.evaluate(input_validate, output_validate, verbose=0)  #use last 200 here?
-print('Test loss:', score[0])
-print('Test accuracy:', score[1])
+print('Test MSE:', score[0])
 
-print(model.layers)
-
+#SVG(model_to_dot(model).create(prog='dot', format='svg'))
 
 
 
