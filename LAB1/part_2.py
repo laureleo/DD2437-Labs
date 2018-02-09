@@ -123,10 +123,7 @@ end = time.time()
 
 
 score = model.evaluate(input_test, output_test, verbose=0)  #use last 200 here?
-print('Test loss:', score[0])
-print('Test accuracy:', score[1])
-
-print(model.layers)
+print('Test MSE:', score[0])
 
 
 #SVG(model_to_dot(model).create(prog='dot', format='svg'))
