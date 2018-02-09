@@ -51,16 +51,16 @@ patterns = np.concatenate((xx.reshape( 1, ndata).copy(), yy.reshape( 1, ndata).c
 
 eta = 0.01
 epochs = 1000
-hidden_layers = [1, 3, 5, 10,  15, 20, 25]
+hidden_layers = [10];#[1, 3, 5, 10,  15, 20, 25]
 
 MSE=np.zeros((len(hidden_layers), 25))
-Ntimes = 10
+Ntimes = 1
 for t in range(Ntimes):
     c=0
     indices = range(targets.shape[1])
     indices = np.random.permutation(indices)
     for hidden in hidden_layers:
-        for n in range(1, 26):
+        for n in [1, 2 , 5 , 10, 25, 75, 150, 250, patterns.shape[1]]:
             resized_patterns = np.zeros((2, n))
             resized_targets = np.zeros((1,n))
             for i in range(n):
@@ -73,8 +73,19 @@ for t in range(Ntimes):
         
             trained_network.forward_pass(patterns) # in some sort
             z_pred = trained_network.O_output
-            z_true = perm_targets
-            MSE[c][n-1]+= mean_squared_error(z_true, z_pred)    
+            z_true = targets
+            
+            fig3 = plt.figure()
+            ax = fig3.gca(projection='3d')
+            ax.plot_wireframe(X,Y,z_pred.reshape((len(x), len(y))), color='r')
+            ax.plot_wireframe(X,Y, z_true.reshape((len(x), len(y))))
+            title= "approximation for n=" + str(n)
+            ax.set_title(title)
+            
+            #mean squarred error of some sort
+            #MSE[c][n-1]+=  mean_squared_error(z_true, z_pred) #/ np.linalg.norm(z_true - np.average(z_true))
+            #normalized MSE ?
+            #MSE[c][n-1]+= np.sum((z_true - z_pred)**2)/z_true.shape[1]
         c+=1
         
 #    plt.figure()
@@ -91,6 +102,7 @@ for k in range(MSE.shape[0]):
     s = str(hidden_layers[k]) + " hidden layers"
     plt.plot(range(1, 26), MSE[k], label=s)
 plt.legend()
+
 plt.show()
     
 

@@ -9,6 +9,8 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import SGD
+from keras.callbacks import EarlyStopping
+import time
 
 
 import numpy as np
@@ -66,26 +68,32 @@ output_validate = np.transpose(output_ts[:, t_validate])
 # https://keras.io/
 
 batch_size = 100
-epochs = 20
+epochs = 1000
 
 model = Sequential()
 model.add(Dense(4, activation='tanh', input_dim=5))
-#model.add(Dense(8, activation='relu'))
-model.add(Dense(1, activation='relu'))
+model.add(Dense(8, activation='tanh'))
+model.add(Dense(1, activation='tanh'))
 
 model.summary()
 
 model.compile(loss='mean_squared_error',
               optimizer='sgd',
               metrics=['mae', 'acc'])
-
+#EarlyStopping
+earlystop = EarlyStopping(monitor='val_loss', min_delta=0.0001, patience=5, verbose=0, mode='auto')
+callbacks_list = [earlystop]
+callbacks_list=[]
+start = time.time()
 history = model.fit(input_train, output_train,
                     batch_size=batch_size,
                     epochs=epochs,
                     verbose=1,
-                    validation_data=(input_validate, output_validate))
+                    validation_data=(input_validate, output_validate),
+                    callbacks = callbacks_list)
+end = time.time()
 
-score = model.evaluate(input_validate, output_validate, verbose=0)  #use last 200 here?
+score = model.evaluate(input_test, output_test, verbose=0)  #use last 200 here?
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
