@@ -109,7 +109,7 @@ model.compile(loss='mean_squared_error',
 #EarlyStopping
 earlystop = EarlyStopping(monitor='val_loss', min_delta=0.0001, patience=5, verbose=0, mode='auto')
 callbacks_list = [earlystop]
-callbacks_list=[]
+callbacks_list=[] #remove this in order to have the early stop
 start = time.time()
               
 
