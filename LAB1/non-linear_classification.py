@@ -8,7 +8,7 @@ import mlp as mlp
 # CREATE TRAINING DATA
 
 # Number of data points
-N = 100
+N = 50
 
 # Class 1
 mean_1 = [2, 2]
@@ -131,7 +131,7 @@ while(not_converged):
 	mis_list.append(missclassifications)
 
 	#Convergence check
-	if (mse < 0.1):
+	if (mse < 0.2):
 		not_converged = 0
 
 	i += 1

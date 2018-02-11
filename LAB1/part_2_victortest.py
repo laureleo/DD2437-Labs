@@ -7,13 +7,15 @@ Created on Mon Feb  5 09:26:48 2018
 import tensorflow as ts
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout
+from keras.layers import Dense, Dropout, Activation
 from keras.optimizers import SGD
+from keras.callbacks import EarlyStopping
+from keras import losses
+import time
 from keras.utils import plot_model
 from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot
-
-
+from keras.regularizers import l2
 
 
 import numpy as np
@@ -39,6 +41,7 @@ for i in range(len(x)-tau-1):
     x[j+1] = x[j] + (beta*x[j-tau])/(1 + math.pow(x[j-tau], 10)) - gamma*x[j]
 
 # Show time series
+plt.figure(1)
 plt.plot(x)
 
 # Select data for training, validating and testing
@@ -88,35 +91,60 @@ output_validate = (output_validate-mu_y)/sigma_y
 input_test = (input_test-mu_x)/sigma_x
 output_test = (output_test-mu_y)/sigma_y
 
-# Build network
-batch_size = 100
-epochs = 100
-
-model = Sequential()
-model.add(Dense(3, activation='relu', input_dim=5))
-for i in range(1):
-    model.add(Dense(2, activation='relu'))
-model.add(Dense(1, activation='linear'))
-
-model.summary()
-
-sgd = keras.optimizers.SGD(lr=0.005) #, clipnorm=1.)
-
-model.compile(loss='mean_squared_error',
-              optimizer=sgd,
-              metrics=['mse'])
-
-history = model.fit(input_train, output_train,
-                    batch_size=batch_size,
-                    epochs=epochs,
-                    verbose=1,
-                    validation_data=(input_validate, output_validate))
-
-score = model.evaluate(input_validate, output_validate, verbose=0)  #use last 200 here?
-print('Test MSE:', score[0])
-
-#SVG(model_to_dot(model).create(prog='dot', format='svg'))
 
 
+
+
+# Loop for checking multiple runs with differing network structures
+for i in range (1):
+
+# Setup parameters 
+    batch_size = 100
+    epochs = 1000
+
+
+# Define model layout (How many hidden layers, how many neurons in them, what type of activation function)
+    model = Sequential()
+    model.add(Dense(8, activation='sigmoid', W_regularizer = l2(0.01),input_dim=5))
+    model.add(Dense(1, activation='linear'))
+
+
+# Configure learning process
+    model.compile(optimizer= keras.optimizers.SGD(lr = 0.005),  #Use stochastic gradient descent
+        loss = losses.mean_squared_error,                       #Minimize mean square error 
+        metrics=['mean_squared_error'])                                        #Track accuracy
+
+
+# Setup early stopping
+    earlystop = EarlyStopping(monitor='mean_squared_error', min_delta=0.0001, patience=5, 
+                                      verbose=1, mode='auto')
+    tensorboard = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, batch_size=32, write_graph=True, write_grads=False, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
+    callbacks_list = [tensorboard]
+
+
+# Train on data and save info about the process into history
+    history = model.fit(input_train, output_train,
+        batch_size=batch_size,
+        epochs=epochs,
+        verbose=0,
+        validation_data=(input_validate, output_validate),
+        callbacks=callbacks_list)
+
+
+
+# Evaluate model 
+    score = model.evaluate(input_test, output_test, verbose=0)  #use last 200 here?
+    print('Test MSE:', score[0])
+
+# summarize history for loss
+    plt.figure(2)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+
+plt.show()
 
 
