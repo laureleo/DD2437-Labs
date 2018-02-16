@@ -15,7 +15,7 @@ import time
 from keras.utils import plot_model
 from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot
-from keras.regularizers import l2
+from keras.regularizers import l2, l1
 
 
 import numpy as np
@@ -40,10 +40,6 @@ for i in range(len(x)-tau-1):
     j = i + tau   # j = tau -> t = 0 
     x[j+1] = x[j] + (beta*x[j-tau])/(1 + math.pow(x[j-tau], 10)) - gamma*x[j]
 
-# Show time series
-plt.figure(1)
-plt.plot(x)
-
 # Select data for training, validating and testing
 t_start = 300; t_end = 1500
 
@@ -53,7 +49,7 @@ input_ts = np.array([x[range(t_start-20, t_end-20)],
                       x[range(t_start-5, t_end-5)],
                       x[range(t_start, t_end)]])
 
-output_ts = np.array([range(t_start+5, t_end+5)])
+output_ts = np.array([x[range(t_start+5, t_end+5)]])
 
 n, m = np.shape(input_ts)
 t_test = range(m-200, m)
@@ -99,27 +95,33 @@ output_test = (output_test-mu_y)/sigma_y
 for i in range (1):
 
 # Setup parameters 
-    batch_size = 100
+    batch_size = 100 #Smaller batches lead to more flucating gradients.
     epochs = 1000
+    eta = 0.01
+    regularization_strength = 0.001
+
 
 
 # Define model layout (How many hidden layers, how many neurons in them, what type of activation function)
     model = Sequential()
-    model.add(Dense(8, activation='sigmoid', W_regularizer = l2(0.01),input_dim=5))
-    model.add(Dense(1, activation='linear'))
+    model.add(Dense(8, activation='sigmoid', W_regularizer=l2(regularization_strength) , input_dim=5)) 
+    #model.add(Dense(8, activation='sigmoid', W_regularizer=l2(regularization_strength)))                                                                
+    model.add(Dense(1, activation='linear'))                                                                
 
 
 # Configure learning process
-    model.compile(optimizer= keras.optimizers.SGD(lr = 0.005),  #Use stochastic gradient descent
-        loss = losses.mean_squared_error,                       #Minimize mean square error 
-        metrics=['mean_squared_error'])                                        #Track accuracy
+    model.compile(
+        optimizer= keras.optimizers.SGD(lr = eta),  #Choose learning function
+        loss = losses.mean_squared_error,           #Choose objective function
+        metrics=['mean_squared_error']              #Choose metric to track
+        )                         
 
 
-# Setup early stopping
+# Setup early stopping and tensorboard
     earlystop = EarlyStopping(monitor='mean_squared_error', min_delta=0.0001, patience=5, 
                                       verbose=1, mode='auto')
-    tensorboard = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, batch_size=32, write_graph=True, write_grads=False, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
-    callbacks_list = [tensorboard]
+    tensorboard = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_grads=False, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
+    callbacks_list = [earlystop, tensorboard]
 
 
 # Train on data and save info about the process into history
@@ -133,18 +135,25 @@ for i in range (1):
 
 
 # Evaluate model 
-    score = model.evaluate(input_test, output_test, verbose=0)  #use last 200 here?
+    score = model.evaluate(input_test, output_test, verbose=1)  #use last 200 here?
     print('Test MSE:', score[0])
 
-# summarize history for loss
-    plt.figure(2)
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
+#Save graph for actual and ideal on test se
+predictions = model.predict(input_test)
+    
+
+#Print original time series as well as predicted time series
+plt.figure('MLP Prediction')
+plt.plot(predictions)
+plt.figure('True Values')
+plt.plot(output_test)
 
 plt.show()
+#To view the training process
+#Delete the logs folder in this folder
+#Run this file
+#In the terminal/shell, run tensorboard --logdir ./logs
+#Visit whe website indicated
+
 
 
