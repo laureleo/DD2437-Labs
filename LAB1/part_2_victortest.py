@@ -91,21 +91,19 @@ output_test = (output_test-mu_y)/sigma_y
 
 
 
-# Loop for checking multiple runs with differing network structures
-for i in range (1):
+def train(epochs, eta, regStrength, hidden):
 
 # Setup parameters 
     batch_size = 100 #Smaller batches lead to more flucating gradients.
-    epochs = 1000
-    eta = 0.01
-    regularization_strength = 0.001
-
+    epochs = epochs
+    eta = eta
+    regularization_strength = regStrength
+    hidden = hidden
 
 
 # Define model layout (How many hidden layers, how many neurons in them, what type of activation function)
-    print(i)
     model = Sequential()
-    model.add(Dense(8, activation='sigmoid', W_regularizer=l2(regularization_strength) , input_dim=5)) 
+    model.add(Dense(hidden, activation='sigmoid', W_regularizer=l2(regularization_strength) , input_dim=5)) 
     #model.add(Dense(8, activation='sigmoid', W_regularizer=l2(regularization_strength)))                                                                
     model.add(Dense(1, activation='linear'))                                                                
 
@@ -122,7 +120,7 @@ for i in range (1):
     earlystop = EarlyStopping(monitor='mean_squared_error', min_delta=0.0001, patience=5, 
                                       verbose=1, mode='auto')
     tensorboard = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_grads=False, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
-    callbacks_list = [earlystop, tensorboard]
+    callbacks_list = [earlystop]
 
 
 # Train on data and save info about the process into history
@@ -140,26 +138,17 @@ for i in range (1):
     print('Test MSE:', score[0])
 
 #Save graph for actual and ideal on test se
-predictions = model.predict(input_test)
-    
+    predictions = model.predict(input_test)
+        
 
 #Print original time series as well as predicted time series
-plt.figure('MLP Prediction')
-plt.plot(predictions)
-plt.figure('True Values')
-plt.plot(output_test)
-print('Possible History Keys')
-print(history.history.keys())
-plt.figure('Validation Error')
-plt.plot(history.history['val_mean_squared_error'])
+    plt.figure('MLP Prediction')
+    plt.plot(predictions)
+    plt.figure('True Values')
+    plt.plot(output_test)
+    plt.figure('Validation Error')
+    plt.plot(history.history['val_mean_squared_error'], label = hidden)
 
-
+#Max epochs to train, learning rate, regularization strength, number of neuronsn
+train(1000, 0.01, 1, 1)
 plt.show()
-#To view the training process
-#Delete the logs folder in this folder
-#Run this file
-#In the terminal/shell, run tensorboard --logdir ./logs
-#Visit whe website indicated
-
-
-
