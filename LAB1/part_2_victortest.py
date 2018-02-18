@@ -103,6 +103,7 @@ for i in range (1):
 
 
 # Define model layout (How many hidden layers, how many neurons in them, what type of activation function)
+    print(i)
     model = Sequential()
     model.add(Dense(8, activation='sigmoid', W_regularizer=l2(regularization_strength) , input_dim=5)) 
     #model.add(Dense(8, activation='sigmoid', W_regularizer=l2(regularization_strength)))                                                                
@@ -147,6 +148,11 @@ plt.figure('MLP Prediction')
 plt.plot(predictions)
 plt.figure('True Values')
 plt.plot(output_test)
+print('Possible History Keys')
+print(history.history.keys())
+plt.figure('Validation Error')
+plt.plot(history.history['val_mean_squared_error'])
+
 
 plt.show()
 #To view the training process
