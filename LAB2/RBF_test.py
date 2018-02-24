@@ -48,7 +48,7 @@ f = vf(f)
 #plt.plot(test_x, o)
 #plt.show()
 test_x = x + 0.05
-nunits = 100
+nunits = 60
 startTime = datetime.now()
 net = RBF_network(nunits, (2*np.pi/(1*nunits))**2)
 #net.learning_batch(x, f)
