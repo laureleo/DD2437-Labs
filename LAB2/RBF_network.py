@@ -50,6 +50,7 @@ class RBF_network(object):
             error = np.average(np.sum((f - self.output(x))**2))
             ite+=1
         
+        print("Epochs = {}", format(ite))
         x = np.copy(x_old)
         f = np.copy(f_old)
         
