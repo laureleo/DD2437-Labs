@@ -31,7 +31,7 @@ class RBF_network(object):
     def learning_incr(self, x, f, eta, error_bound = 0.01, noite=10 ):
         x_old = np.copy(x)
         f_old = np.copy(f)
-        diff_min_max = np.abs(np.max(x) - np.min(x))*0.2
+        diff_min_max = np.abs(np.max(x) - np.min(x))*0
         self.mean = np.linspace(np.min(x), np.max(x)+diff_min_max, self.n)
         error = np.average(np.sum((f - self.output(x))**2))
         ite=0
@@ -43,16 +43,16 @@ class RBF_network(object):
             x, f = zip(*c)
             for k in range(len(x)):
                 phi_vect = np.array( [self.phi(x[k], i) for i in range(self.n)])
-                #error = 1/2 ( f[k] - np.sum(self.weights * phi_vect) )**2
                 
                 d_w = eta* (f[k] - np.sum(self.weights * phi_vect)) * phi_vect 
                 self.weights +=d_w
-            error = np.average(np.sum((f - self.output(x))**2))
+            error = np.average(np.abs(f - self.output(x)))#np.sum((f - self.output(x))**2)
             ite+=1
         
         print("Epochs = {}", format(ite))
         x = np.copy(x_old)
         f = np.copy(f_old)
+        return ite
         
     def output(self, x):
         o = np.zeros(len(x))

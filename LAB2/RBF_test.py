@@ -54,15 +54,19 @@ for i in range (1, 2):
 #plt.plot(test_x, np.sin(2*test_x), linewidth=5)
 #plt.plot(test_x, o)
 #plt.show()
-    test_x = x + 0.05
-    nunits = 6
-    startTime = datetime.now()
-    eta = 1.4
-    net = RBF_network(nunits, (2*np.pi/(1*nunits))**2)
-    net.learning_batch(x, f)
-    #net.learning_incr(x, f, eta, 0.01, 10000)
-    print(datetime.now() - startTime)
-    o = net.output(test_x)
+test_x = x + 0.05
+nunits = 20
+startTime = datetime.now()
+net = RBF_network(nunits, (2*np.pi/(1*nunits))**2)
+#net.learning_batch(x, f):
+np.random.seed(9000)
+net = RBF_network(nunits, (2*np.pi/(1*nunits))**2)
+#ep = net.learning_incr(x, f, 0.04, 0.1, 1000)
+#print(ep)
+net.learning_batch(x, f)
+#print(datetime.now() - startTime)
+o = net.output(test_x)
+
 #o = np.vectorize(func)(o)
 #absolute_residual_error = np.average(np.abs(np.vectorize(func)(np.sin(2*test_x)) - o))
 
@@ -70,7 +74,9 @@ for i in range (1, 2):
     noise2 = np.random.normal(mu, sigma, ideal.shape)
     ideal = ideal + noise2
 
-    absolute_residual_error = np.average(np.abs(ideal - o))
+
+absolute_residual_error = np.average(np.abs(ideal - o))
+    
 
 #while absolute_residual_error > 0.1:
 #    nunits+=1
@@ -78,11 +84,15 @@ for i in range (1, 2):
 #    net.learning_incr(x,f, 0.1/nunits,100)
 #    o = net.output(test_x)
 #    absolute_residual_error = np.average(np.abs(np.sin(2*test_x) - o))
-    print("Number of units={} and error={}".format(nunits, absolute_residual_error) )
-    plt.figure()
-    plt.plot(test_x, ideal, linewidth=5)
-    plt.plot(test_x, o)
-    #plt.show()
+
+print("Number of units={} and error={}".format(nunits, absolute_residual_error) )
+print("Error not ideal:{}".format(np.average(np.abs(np.sin(2*test_x) - o))))
+plt.figure()
+plt.plot(test_x, ideal, linewidth=4, alpha = 0.5)
+plt.plot(test_x, np.sin(2*test_x), linewidth=4, alpha=0.5)
+plt.plot(test_x, o)
+plt.show()
+
 
         
 
