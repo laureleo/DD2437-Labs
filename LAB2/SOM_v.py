@@ -1,36 +1,17 @@
 import numpy as np
-"""
-Create a self-organizing map.
 
-x, y = the dimensions of the grid of neurons 
 
-input_dim = input dimensionality
-
-neigh_size = initial size of the neighbourhood. Higher neigh_size implies more neighbours 
-
-eta = learning rate
-
-rnd_seed = initialize the pseudorandom number generator with the seed. Use None for random generator.
-
-The map consist of a grid of neurons
-
-Each neuron has an x and y coordinate and a weight vector
-
-At each iteration, check which neuron is closest to the input and move it and its neighbours closer to the input
-
-"""
 class SOM(object):
-    def __init__(self, rows, cols, input_dim, neigh_size, eta, rnd_seed, decay_rate, decay_type):
+    def __init__(self, rows, cols, input_dim, neigh_size, eta, rnd_seed, decay_rate):
         self._rows = rows
         self._cols = cols
         self._rnd_gen = np.random.RandomState(rnd_seed)
         self._eta = eta
         self._neigh_size = neigh_size
         self._decay = decay_rate
-        self._decay_type = decay_type
         self._map = self._rnd_gen.rand(rows, cols, input_dim)
         self._activations = np.zeros((rows, cols))
-        print("Created Self-Organizing Map with following attributes:\n Map dimensions = {}\n Input pattern dimensionality = {}\n Initial neighbourhood size = {}\n Learning rate = {}\n Randomization = {}\n Neighbourhood decay type = {} \n Neighbourhood decay rate = {}\n".format((rows, cols), input_dim, neigh_size, eta, rnd_seed, decay_type, decay_rate))
+        print("Created Self-Organizing Map with following attributes:\n Map dimensions = {}\n Input pattern dimensionality = {}\n Initial neighbourhood size = {}\n Learning rate = {}\n Randomization = {}\n Neighbourhood decay rate = {}\n".format((rows, cols), input_dim, neigh_size, eta, rnd_seed, decay_rate))
 
 # Return the map.
     def get_map(self):
@@ -44,12 +25,9 @@ class SOM(object):
     def set_weight(self, row, col, new_weight):
         self._map[row, col, :] =  new_weight
  
-# Decays the size of the neighbourhood by different methods. 1 for a constant decay, 2 for a multiplicative
+# Decays the size of the neighbourhood at a constant rate of [_decay] 
     def decay_neighbourhood(self):
-        if(self.decay_type == 1):
-            self._neigh_size = self._neigh_size * self._decay 
-        if(self.decay_type == 2):
-            self._neigh_size = self._neigh_size - self._decay 
+        self._neigh_size = self._neigh_size - self._decay 
 
 # Return the euclidean distance between the neuron at [row][col] and input pattern
     def get_distance(self, row, col,  pattern):
@@ -70,17 +48,12 @@ class SOM(object):
         return np.unravel_index(self._activations.argmin(), self._activations.shape)
 
 # Returns a list of tuples (neighbour coordinates) within neigh_size of the winner neuron. Uses manhattan distance i.e only counts distance as units travelled horizontally/vertically
-    def get_1Dneighbours(self, input_pattern):
-        print("hi")
-
-
-# Returns a list of tuples (neighbour coordinates) within neigh_size of the winner neuron. Uses manhattan distance i.e only counts distance as units travelled horizontally/vertically
-    def get_2Dneighbours(self, input_pattern):
+    def get_neighbours(self, input_pattern):
         winner = self.get_winner(input_pattern)
         x = winner[0]
         y = winner[0]
 
-        neigh_size = np.round(self._neigh_size)
+        neigh_size = self._neigh_size 
         neighbours= []
 
         for i in range(x - neigh_size, x + neigh_size + 1):
@@ -93,7 +66,7 @@ class SOM(object):
 # Finds a winning neuron and moves it and its neighbours closer to the input that activated it. 
     def update_map(self, pattern):
         winner = self.get_winner(pattern)
-        neighbours = self.get_2dneighbours(pattern)
+        neighbours = self.get_neighbours(pattern)
 
         for neighbour in neighbours:
             old_w = self.get_weight(neighbour[0], neighbour[1])
@@ -102,12 +75,12 @@ class SOM(object):
 
 
 # Trains the network for [epoch] epochs
-    def train(self, patterns):
+    def train(self, patterns, epochs):
         for i in range(epochs):
             for pattern in patterns:
-                update_map(pattern)
-
-        self.decay_neighbourhood()
+                self.update_map(pattern)
+            self.decay_neighbourhood()
+        
 
 
 
@@ -125,6 +98,7 @@ Output should be one-dimensional
 neighbourhood should be one-dimensional
 20 epochs
 """
-som = SOM(3,2,2,50,0.2,2,0.99, 1)
+som = SOM(1,2,2,50,0.2,2,1)
 print(som.get_map())
+som.train([1,3], 5)
 
