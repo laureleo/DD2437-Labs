@@ -68,8 +68,8 @@ class SOM(object):
         winner = self.get_winner(pattern)
         neighbours = self.get_neighbours(pattern)
 
-        print("\nlooking at pattern {}\nwinner is {} and the winners neighbours are".format(pattern, winner))
-        print(neighbours)
+        #print("\nlooking at pattern {}\nwinner is {} and the winners neighbours are".format(pattern, winner))
+        #print(neighbours)
 
         for neighbour in neighbours:
             old_w = self.get_weight(neighbour[0], neighbour[1])
@@ -80,12 +80,21 @@ class SOM(object):
 # Trains the network for [epoch] epochs
     def train(self, patterns, epochs):
         for i in range(epochs):
-            print("run = {}".format(i))
-            print("neighbourhood size = {}".format(self._neigh_size))
             for pattern in patterns:
                 self.update_map(pattern)
             self.decay_neighbourhood()
+
+        print("Final neighbourhood size = {}".format(self._neigh_size))
+
+# Returns an array of winners corresponding to the patterns received. 
+    def get_winners(self, patterns):
+        winner_list = []
+        for pattern in patterns:
+            winner = self.get_winner(pattern)
+            winner_list.append(winner)
             
+        return winner_list
+
 
 
 
@@ -94,20 +103,35 @@ class SOM(object):
 
 
 """ 
-Lab2 Part2 
-Inputs are 32 arrays of 84 attributes, each array corresponding to one species
+Topological ordering of animal species
+Inputs are 32 rows of 84 attributes, each row corresponding to one animal
 Output nodes should be 100
 Learning rate should be 0.2
 Initial neigbourhood size should be 50 and end up around 1
 Output should be one-dimensional
 neighbourhood should be one-dimensional
-20 epochs
+train for approx 20 epochs
 """
-#TEST
-som = SOM(1,50,3,10,0.2,2,1)
-pattern = [[0.1,0.2,0.3],[0.44,0.5,0.6],[0.7,0.8,0.9], [0.1, 0.5, 0.9]]
-print("Initial map")
-print(som.get_map())
-print("training")
-som.train(pattern, 5)
+
+animals = np.loadtxt("./data/animals.dat", dtype='i', delimiter=',')
+animals = np.ndarray.reshape(animals, 32, 84)
+
+animal_names= np.loadtxt("./data/animalnames.txt", dtype='string', delimiter='\n')
+
+som = SOM(1,100,84,50,0.2,2,2)
+som.train(animals, 23)
+result = som.get_winners(animals)
+
+result2 = []
+
+for i in range(32):
+    result2.append((result[i][1], animal_names[i]))
+
+print("Animals more closely related should have appear more closely in the following list")
+for i in range(100):
+    for j in range(32):
+        if (result2[j][0] == i):
+            print result2[j]
+        
+
 
