@@ -51,7 +51,7 @@ class SOM(object):
     def get_neighbours(self, input_pattern):
         winner = self.get_winner(input_pattern)
         x = winner[0]
-        y = winner[0]
+        y = winner[1]
 
         neigh_size = self._neigh_size 
         neighbours= []
@@ -68,6 +68,9 @@ class SOM(object):
         winner = self.get_winner(pattern)
         neighbours = self.get_neighbours(pattern)
 
+        print("\nlooking at pattern {}\nwinner is {} and the winners neighbours are".format(pattern, winner))
+        print(neighbours)
+
         for neighbour in neighbours:
             old_w = self.get_weight(neighbour[0], neighbour[1])
             new_w = old_w + self._eta * (pattern - old_w)
@@ -77,11 +80,12 @@ class SOM(object):
 # Trains the network for [epoch] epochs
     def train(self, patterns, epochs):
         for i in range(epochs):
+            print("run = {}".format(i))
+            print("neighbourhood size = {}".format(self._neigh_size))
             for pattern in patterns:
                 self.update_map(pattern)
             self.decay_neighbourhood()
-        
-
+            
 
 
 
@@ -90,6 +94,7 @@ class SOM(object):
 
 
 """ 
+Lab2 Part2 
 Inputs are 32 arrays of 84 attributes, each array corresponding to one species
 Output nodes should be 100
 Learning rate should be 0.2
@@ -98,7 +103,11 @@ Output should be one-dimensional
 neighbourhood should be one-dimensional
 20 epochs
 """
-som = SOM(1,2,2,50,0.2,2,1)
+#TEST
+som = SOM(1,50,3,10,0.2,2,1)
+pattern = [[0.1,0.2,0.3],[0.44,0.5,0.6],[0.7,0.8,0.9], [0.1, 0.5, 0.9]]
+print("Initial map")
 print(som.get_map())
-som.train([1,3], 5)
+print("training")
+som.train(pattern, 5)
 
