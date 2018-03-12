@@ -1,17 +1,18 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 class SOM(object):
-    def __init__(self, rows, cols, input_dim, neigh_size, eta, rnd_seed, decay_rate):
+    def __init__(self, rows, cols, input_dim, neigh_size, eta, rnd_seed, decay_rate, cyclic_map):
         self._rows = rows
         self._cols = cols
         self._rnd_gen = np.random.RandomState(rnd_seed)
         self._eta = eta
         self._neigh_size = neigh_size
         self._decay = decay_rate
+        self._cyclic_map = cyclic_map
         self._map = self._rnd_gen.rand(rows, cols, input_dim)
         self._activations = np.zeros((rows, cols))
-        print("Created Self-Organizing Map with following attributes:\n Map dimensions = {}\n Input pattern dimensionality = {}\n Initial neighbourhood size = {}\n Learning rate = {}\n Randomization = {}\n Neighbourhood decay rate = {}\n".format((rows, cols), input_dim, neigh_size, eta, rnd_seed, decay_rate))
+        print("Created Self-Organizing Map with following attributes:\n Map dimensions = {}\n Input pattern dimensionality = {}\n Initial neighbourhood size = {}\n Learning rate = {}\n Randomization = {}\n Neighbourhood decay rate = {}\n Cyclic map = {}".format((rows, cols), input_dim, neigh_size, eta, rnd_seed, decay_rate, cyclic_map))
 
 # Return the map.
     def get_map(self):
@@ -59,6 +60,9 @@ class SOM(object):
         for i in range(x - neigh_size, x + neigh_size + 1):
             steps_left = np.absolute(np.absolute(x-i) - neigh_size)
             for j in range(y - steps_left, y + steps_left + 1):
+                if(self._cyclic_map):
+                    i = i % self._rows
+                    j = j % self._cols
                 if(i >= 0 and j >= 0 and i < self._rows and j < self._cols):
                     neighbours.append((i,j))
         return(neighbours)
@@ -76,15 +80,20 @@ class SOM(object):
             new_w = old_w + self._eta * (pattern - old_w)
             self.set_weight(neighbour[0], neighbour[1], new_w)
 
-
 # Trains the network for [epoch] epochs
     def train(self, patterns, epochs):
         for i in range(epochs):
-            for pattern in patterns:
-                self.update_map(pattern)
-            self.decay_neighbourhood()
+            if(self._neigh_size >= 1):
+                for pattern in patterns:
+                    self.update_map(pattern)
 
-        print("Final neighbourhood size = {}".format(self._neigh_size))
+                if(self._cyclic_map):                   # This is just a quick fix for the cyclic tour neighbourhood decay requirements. A specific weight decay function would prolly be nicer.
+                    if(i + 1 % 9 == 0):
+                        self.decay_neighbourhood()
+                else:
+                    self.decay_neighbourhood()
+            else:
+                print("\nNeighbourhood is zero, skipping epoch...")
 
 # Returns an array of winners corresponding to the patterns received. 
     def get_winners(self, patterns):
@@ -94,10 +103,6 @@ class SOM(object):
             winner_list.append(winner)
             
         return winner_list
-
-
-
-
 
 
 
@@ -112,26 +117,58 @@ Output should be one-dimensional
 neighbourhood should be one-dimensional
 train for approx 20 epochs
 """
+#
+#animals = np.loadtxt("./data/animals.dat", dtype='i', delimiter=',')
+#animals = np.ndarray.reshape(animals, 32, 84)
+#
+#animal_names= np.loadtxt("./data/animalnames.txt", dtype='string', delimiter='\n')
+#
+#som = SOM(1,100,84,50,0.2,2,2,0)
+#som.train(animals, 23)
+#result = som.get_winners(animals)
+#
+#result2 = []
+#
+#for i in range(32):
+#    result2.append((result[i][1], animal_names[i]))
+#
+#print("Animals more closely related should have appear more closely in the following list")
+#for i in range(100):
+#    for j in range(32):
+#        if (result2[j][0] == i):
+#            print result2[j]
 
-animals = np.loadtxt("./data/animals.dat", dtype='i', delimiter=',')
-animals = np.ndarray.reshape(animals, 32, 84)
+""" 
+Cyclic tour
+Input space has two dimensions
+Output space has 10 nodes
+Neighbourhood is circular so first/last nodes are neighbours
+Neighbourhood size 2 to 1 to 0 is reasonable
+Tour and training points should be plotted
+"""
 
-animal_names= np.loadtxt("./data/animalnames.txt", dtype='string', delimiter='\n')
+cities = np.array([
+[0.4000, 0.4439],
+[0.2439, 0.1463], 
+[0.1707, 0.2293],
+[0.2293, 0.7610],
+[0.5171, 0.9414],
+[0.8732, 0.6536],
+[0.6878, 0.5219],
+[0.8488, 0.3609],
+[0.6683, 0.2536],
+[0.6195, 0.2634]
+])
 
-som = SOM(1,100,84,50,0.2,2,2)
-som.train(animals, 23)
-result = som.get_winners(animals)
+som = SOM(1, 10, 2, 2, 0.2, 1, 1, 1)
+som.train(cities, 20)
+activity_map = som.get_map()
 
-result2 = []
+x = activity_map[0][:,0]
+y = activity_map[0][:,1]
 
-for i in range(32):
-    result2.append((result[i][1], animal_names[i]))
-
-print("Animals more closely related should have appear more closely in the following list")
-for i in range(100):
-    for j in range(32):
-        if (result2[j][0] == i):
-            print result2[j]
-        
-
+plt.figure("Cities")
+plt.plot(cities[:,0], cities[:,1],'ro')
+plt.plot(x,y, 'bo-')
+plt.show()
 
