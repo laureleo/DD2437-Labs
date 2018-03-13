@@ -82,8 +82,10 @@ class SOM(object):
 
 # Trains the network for [epoch] epochs
     def train(self, patterns, epochs):
-        for i in range(epochs):
-            if(self._neigh_size >= 1):
+        i = 0
+        while i < epochs:
+            #print(self._neigh_size)
+            if(self._neigh_size > 0):
                 for pattern in patterns:
                     self.update_map(pattern)
 
@@ -91,9 +93,12 @@ class SOM(object):
                     if(i + 1 % 9 == 0):
                         self.decay_neighbourhood()
                 else:
-                    self.decay_neighbourhood()
+                    if(i % 2 == 0):                     # This is just a quick fix for the votes part of the lab. The if-part should be removed if running the topological ordering :/
+                        self.decay_neighbourhood()
+                i = i + 1
             else:
-                print("\nNeighbourhood is zero, skipping epoch...")
+                print("Neighbourhood reached size zero at epoch {}, quitting...".format(i))
+                i = epochs
 
 # Returns an array of winners corresponding to the patterns received. 
     def get_winners(self, patterns):
@@ -146,29 +151,92 @@ Neighbourhood is circular so first/last nodes are neighbours
 Neighbourhood size 2 to 1 to 0 is reasonable
 Tour and training points should be plotted
 """
+#
+#cities = np.array([
+#[0.4000, 0.4439],
+#[0.2439, 0.1463], 
+#[0.1707, 0.2293],
+#[0.2293, 0.7610],
+#[0.5171, 0.9414],
+#[0.8732, 0.6536],
+#[0.6878, 0.5219],
+#[0.8488, 0.3609],
+#[0.6683, 0.2536],
+#[0.6195, 0.2634]
+#])
+#
+#som = SOM(1, 10, 2, 2, 0.2, 1, 1, 1)
+#som.train(cities, 20)
+#activity_map = som.get_map()
+#
+#x = activity_map[0][:,0]
+#y = activity_map[0][:,1]
+#
+#plt.figure("Cities")
+#plt.plot(cities[:,0], cities[:,1],'ro')
+#plt.plot(x,y, 'bo-')
+#plt.show()
+#
+""" 
+Data clustering: Votes of MP:
+Output space is a 10x10 grid
+Input is 349 rows (Members of parliments) with 31 columns (Their votes)
 
-cities = np.array([
-[0.4000, 0.4439],
-[0.2439, 0.1463], 
-[0.1707, 0.2293],
-[0.2293, 0.7610],
-[0.5171, 0.9414],
-[0.8732, 0.6536],
-[0.6878, 0.5219],
-[0.8488, 0.3609],
-[0.6683, 0.2536],
-[0.6195, 0.2634]
-])
+Using a special fix in the training function, the size of the neighbourhood decays with 1 evey other epoch
+10 was choosen as initial size of neighbourhood to get a good coverage without activating all neurons in the 10x10 grid
+Epochs was rather arbitrarily choosen, the som stops adapting when neighbourhood size reaches 0
 
-som = SOM(1, 10, 2, 2, 0.2, 1, 1, 1)
-som.train(cities, 20)
-activity_map = som.get_map()
+% Coding: 0=no party, 1='m', 2='fp', 3='s', 4='v', 5='mp', 6='kd', 7='c'
+       
+% Coding: Male 0, Female 1           
 
-x = activity_map[0][:,0]
-y = activity_map[0][:,1]
+"""
+votes = np.loadtxt("./data/votes.dat", dtype='i', delimiter=',')
+votes = np.ndarray.reshape(votes, 349, 31)
 
-plt.figure("Cities")
-plt.plot(cities[:,0], cities[:,1],'ro')
-plt.plot(x,y, 'bo-')
+party   = np.loadtxt("./data/mpparty.dat", dtype='i', delimiter='\n')
+gender  = np.loadtxt("./data/mpsex.dat", dtype='i', delimiter='\n')
+district= np.loadtxt("./data/mpdistrict.dat", dtype='i', delimiter='\n')
+
+som = SOM(10, 10, 31, 10, 0.2, 1, 1, 0)
+som.train(votes, 20)
+
+# For each voting pattern, return what node in the 10x10 grid that represents it
+winners = som.get_winners(votes)
+
+winner_party = []
+winner_gender = []
+winner_district = []
+
+
+# For each node, append the qualities associated with that voter (such as party, gender, district)
+for i in range(349):
+    winner_party.append((winners[i], party[i]))
+    winner_gender.append((winners[i], gender[i]))
+    winner_district.append((winners[i], district[i]))
+
+plt.figure("Genders")
+for item in winner_gender:
+    x = item[0][0]
+    y = item[0][1]
+    z = item[1]
+    plt.scatter(x, y, c = z, s = 500, vmin = 0, vmax = 1)
+
+
+plt.figure("Party")
+for item in winner_party:
+    x = item[0][0]
+    y = item[0][1]
+    z = item[1]
+    plt.scatter(x, y, c = z, s = 500, vmin = 1, vmax = 7)
+
+plt.figure("District")
+for item in winner_district:
+    x = item[0][0]
+    y = item[0][1]
+    z = item[1]
+    plt.scatter(x, y, c = z, s = 500, vmin = 1, vmax = 29)
+ 
+plt.legend()
 plt.show()
 
