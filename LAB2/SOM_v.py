@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from random import randint
 
 class SOM(object):
     def __init__(self, rows, cols, input_dim, neigh_size, eta, rnd_seed, decay_rate, cyclic_map):
@@ -209,34 +211,59 @@ winner_gender = []
 winner_district = []
 
 
+
 # For each node, append the qualities associated with that voter (such as party, gender, district)
 for i in range(349):
     winner_party.append((winners[i], party[i]))
     winner_gender.append((winners[i], gender[i]))
     winner_district.append((winners[i], district[i]))
 
+
+label = ['male', 'female']
+color=['red', 'blue']
 plt.figure("Genders")
 for item in winner_gender:
     x = item[0][0]
     y = item[0][1]
     z = item[1]
-    plt.scatter(x, y, c = z, s = 500, vmin = 0, vmax = 1)
+    plt.scatter(x, y, c = color[z], s = 500, vmin = 0, vmax = 1)
+    
+red_patch =mpatches.Patch(color='red', label='male')
+blue_patch= mpatches.Patch(color='blue', label='female')
+plt.legend(handles=[red_patch, blue_patch])
 
 
+label = ['no party', 'm', 'fp', 's', 'v', 'mp', 'kd', 'c']
+hsv = plt.get_cmap('hsv')
+color = hsv(np.linspace(0, 1.0, len(label)))
 plt.figure("Party")
 for item in winner_party:
     x = item[0][0]
     y = item[0][1]
     z = item[1]
-    plt.scatter(x, y, c = z, s = 500, vmin = 1, vmax = 7)
+    plt.scatter(x, y, c = color[z], s = 500, vmin = 1, vmax = 7)
+    
+list_patches =[]
+for p in range(len(label)):
+    list_patches.append(mpatches.Patch(color=color[p], label=label[p]))   
+plt.legend(handles=list_patches)
 
+
+label = range(30)
+hsv = plt.get_cmap('hsv')
+color = hsv(np.linspace(0, 1.0, len(label)))
 plt.figure("District")
 for item in winner_district:
     x = item[0][0]
     y = item[0][1]
     z = item[1]
-    plt.scatter(x, y, c = z, s = 500, vmin = 1, vmax = 29)
+    plt.scatter(x, y, c = color[z], s = 500, vmin = 1, vmax = 29)
+
+#list_patches =[]
+#for p in range(len(label)):
+#    list_patches.append(mpatches.Patch(color=color[p], label=label[p]))   
+#plt.legend(handles=list_patches)
  
-plt.legend()
+
 plt.show()
 
