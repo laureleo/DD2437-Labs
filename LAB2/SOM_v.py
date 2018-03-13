@@ -201,10 +201,19 @@ gender  = np.loadtxt("./data/mpsex.dat", dtype='i', delimiter='\n')
 district= np.loadtxt("./data/mpdistrict.dat", dtype='i', delimiter='\n')
 
 som = SOM(10, 10, 31, 10, 0.2, 1, 1, 0)
-som.train(votes, 20)
+som.train(votes, 2)
 
 # For each voting pattern, return what node in the 10x10 grid that represents it
 winners = som.get_winners(votes)
+
+# Append noise to position in order to not overwrite earlier voters
+noisy_winners = []
+for winner in winners:
+    x = winner[0] + np.random.normal(0, 0.5, 1)
+    x = x[0]
+    y = winner[1] + np.random.normal(0, 0.5, 1)
+    y = y[0]
+    noisy_winners.append((x,y))
 
 winner_party = []
 winner_gender = []
@@ -214,9 +223,9 @@ winner_district = []
 
 # For each node, append the qualities associated with that voter (such as party, gender, district)
 for i in range(349):
-    winner_party.append((winners[i], party[i]))
-    winner_gender.append((winners[i], gender[i]))
-    winner_district.append((winners[i], district[i]))
+    winner_party.append((noisy_winners[i], party[i]))
+    winner_gender.append((noisy_winners[i], gender[i]))
+    winner_district.append((noisy_winners[i], district[i]))
 
 
 label = ['male', 'female']
@@ -226,7 +235,7 @@ for item in winner_gender:
     x = item[0][0]
     y = item[0][1]
     z = item[1]
-    plt.scatter(x, y, c = color[z], s = 500, vmin = 0, vmax = 1)
+    plt.scatter(x, y, c = color[z], s = 200, vmin = 0, vmax = 1)
     
 red_patch =mpatches.Patch(color='red', label='male')
 blue_patch= mpatches.Patch(color='blue', label='female')
@@ -241,7 +250,7 @@ for item in winner_party:
     x = item[0][0]
     y = item[0][1]
     z = item[1]
-    plt.scatter(x, y, c = color[z], s = 500, vmin = 1, vmax = 7)
+    plt.scatter(x, y, c = color[z], s = 200, vmin = 1, vmax = 7)
     
 list_patches =[]
 for p in range(len(label)):
@@ -257,7 +266,7 @@ for item in winner_district:
     x = item[0][0]
     y = item[0][1]
     z = item[1]
-    plt.scatter(x, y, c = color[z], s = 500, vmin = 1, vmax = 29)
+    plt.scatter(x, y, c = color[z], s = 200, vmin = 1, vmax = 29)
 
 #list_patches =[]
 #for p in range(len(label)):
