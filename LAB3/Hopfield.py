@@ -6,6 +6,8 @@ Created on Fri Mar 16 15:08:39 2018
 """
 import numpy as np 
 from math import *
+import matplotlib.pyplot as plt
+from random import *
 
 class Hopfield(object):
     def __init__(self, N): 
@@ -13,7 +15,7 @@ class Hopfield(object):
         self.W = np.zeros((N,N))
         
     #Learning made with a list of patterns and with a possibility not to scale the weights
-    def Hebbian_learning(self, patterns_list, scale=False): #false if just sign
+    def hebbian_learning(self, patterns_list, scale=False): #false if just sign
         P = len(patterns_list)
         for i in range(self.N):
             for j in range(self.N):
@@ -39,7 +41,31 @@ class Hopfield(object):
             x2[i]=self.sign(x2[i])
         return(x2)
     
+    def sequential_update(self, x):
+        it = 0
+        out = np.copy(x) 
+        while it < 5501 :
+            idx = randint(0, self.N-1)
+            s =0
+            for j in range(len(x)):
+                s+=self.W[idx][j]*out[j]
+            out[idx]=self.sign(s)
+            
+            if it%500==0:
+                print("energy during iteration is:{}".format(self.energy(out)))
+#uncomment to plot every 500 it
+#            if it%500 == 0:
+#                plt.figure()
+#                plt.imshow(np.reshape(out, (32, 32)))
+            it+=1
         
+    
+    def energy(self, x):
+        E = 0
+        for i in range(self.N):
+            for j in range(self.N):
+                E+=self.W[i][j]*x[i]*x[j]
+        return( -E)
     
     
 ##===========================================================================##
@@ -53,7 +79,7 @@ class Hopfield(object):
 #x3=[-1, 1, 1, -1, -1, 1, -1, 1]
 #l.append(x1); l.append( x2); l.append( x3)
 #
-#net.Hebbian_learning(l, scale=False)
+#net.hebbian_learning(l, scale=False)
 ##for x in l:
 ##    print("vector {} and update rule {}".format(x, net.update_rule(x)))
 ##    print("diff={}".format(x - net.update_rule(x)))
