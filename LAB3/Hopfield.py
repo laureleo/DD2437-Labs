@@ -66,6 +66,12 @@ class Hopfield(object):
             for j in range(self.N):
                 E+=self.W[i][j]*x[i]*x[j]
         return( -E)
+        
+    def random_init(self):
+        for i in range(self.N):
+            for j in range(self.N):
+                self.W[i][j]=np.random.normal()
+        
     
     
 ##===========================================================================##
