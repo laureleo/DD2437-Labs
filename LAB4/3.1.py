@@ -80,36 +80,60 @@ def autoencode(epochs, verbose, performance, hidden):
     encoded_imgs = encoder.predict(test_in)
     decoded_imgs = decoder.predict(encoded_imgs)
 
+    samples = [18, 3, 7, 0, 2, 1,15 , 8, 6 ,5 ]
     n = 10  # how many digits we will display
     plt.figure("Autoencoder", figsize=(20, 4))
     for i in range(n):
+        index = samples[i]
         # display original
         ax = plt.subplot(2, n, i + 1)
-        plt.imshow(test_in[i].reshape(28, 28))
+        plt.imshow(test_in[index].reshape(28, 28))
         plt.gray()
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
 
         # display reconstruction
         ax = plt.subplot(2, n, i + 1 + n)
-        plt.imshow(decoded_imgs[i].reshape(28, 28))
+        plt.imshow(decoded_imgs[index].reshape(28, 28))
         plt.gray()
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
     plt.show()
 
 
-def rbm(epochs, hidden, eta):
+
+def rbm(epochs, hidden, eta, reconstruct_only):
     print("Running the rbm...")
 
+    if(not reconstruct_only):
+        print("Graphing average error as a function of epoch...")
+        error_list = []
+        for i in range(epochs):
+            rbm = BernoulliRBM(n_components=hidden, learning_rate=eta, batch_size=100, n_iter=i, verbose = True, random_state = 1)
+            rbm.fit(train_in)
+
+            total_error = 0
+            for image in train_in:
+                reconstruction = rbm.gibbs(image).astype(int)
+                error = mean_squared_error(image, reconstruction)
+                total_error = total_error + error
+
+            error_list.append(total_error/8000)
+
+        plt.figure("Epoch-Loss relation in RBM")
+        plt.plot(error_list)
+
+
+    print("Creating reconstructed images, using test data...")
     rbm = BernoulliRBM(n_components=hidden, learning_rate=eta, batch_size=100, n_iter=epochs, verbose = True, random_state = 1)
     rbm.fit(train_in)
 
+
     plt.figure("RBM mnist digits", figsize = (20, 4))
-    samples = [11, 2, 8, 15, 6, 10, 0, 4, 31, 9]
+    samples = [18, 3, 7, 0, 2, 1,15 , 8, 6 ,5 ]
     i = 0
     for index in samples:
-        image = train_in[index]
+        image = test_in[index]
         reconstruction = rbm.gibbs(image).astype(int)
 
         # display original
@@ -132,4 +156,5 @@ def rbm(epochs, hidden, eta):
 
 
 
-rbm(10, 50, 0.2)
+#autoencode(1, 0, "high", 10)
+rbm(1,50, 0.2, 1)
