@@ -4,28 +4,34 @@ from sklearn.neural_network import BernoulliRBM
 import matplotlib.pyplot as plt
 from keras.layers import Input,Dense
 from keras.models import Model
+from keras.callbacks import EarlyStopping
+from keras import losses
+import matplotlib.cm as cm
+from sklearn.metrics import mean_squared_error
 
-def autoencode(epochs, verbose, performance):
+
+train_in = np.loadtxt("./data/bindigit_trn.csv", dtype='i', delimiter=',')
+train_in = np.ndarray.reshape(train_in, 8000, 784)
+print("Loaded training input patterns...")
+
+train_out= np.loadtxt("./data/targetdigit_trn.csv", dtype='i', delimiter=',')
+train_out= np.ndarray.reshape(train_out, 8000, 1)
+print("Loaded training output patterns...")
+
+test_in= np.loadtxt("./data/bindigit_tst.csv", dtype='i', delimiter=',')
+test_in = np.ndarray.reshape(test_in, 2000, 784)
+print("Loaded test input patterns...")
+
+test_out= np.loadtxt("./data/targetdigit_tst.csv", dtype='i', delimiter=',')
+test_ou= np.ndarray.reshape(test_out, 2000, 1)
+print("Loaded test output patterns...")
+
+
+
+def autoencode(epochs, verbose, performance, hidden):
     print("Running the autoencoder")
-
-    train_in = np.loadtxt("./data/bindigit_trn.csv", dtype='i', delimiter=',')
-    train_in = np.ndarray.reshape(train_in, 8000, 784)
-    print("Loaded training input patterns...")
-
-    train_out= np.loadtxt("./data/targetdigit_trn.csv", dtype='i', delimiter=',')
-    train_out= np.ndarray.reshape(train_out, 8000, 1)
-    print("Loaded training output patterns...")
-
-    test_in= np.loadtxt("./data/bindigit_tst.csv", dtype='i', delimiter=',')
-    test_in = np.ndarray.reshape(test_in, 2000, 784)
-    print("Loaded test input patterns...")
-
-    test_out= np.loadtxt("./data/targetdigit_tst.csv", dtype='i', delimiter=',')
-    test_ou= np.ndarray.reshape(test_out, 2000, 1)
-    print("Loaded test output patterns...")
-
     #Set the dimensionality of the encoded input
-    encoding_dim = 32  
+    encoding_dim = hidden 
 
     #Placeholders. Dunno why these are necessary, the Keras guide recommends it
     input_img = Input(shape=(784,))
@@ -52,13 +58,22 @@ def autoencode(epochs, verbose, performance):
     else:
         autoencoder.compile(optimizer='sgd', loss='mse')
 
+    # Setup early stopping
+    earlystop = EarlyStopping(monitor='loss', min_delta=0.0001, patience=5,
+                                              verbose=0, mode='auto')
+    callback_list = [earlystop]
 
-    autoencoder.fit(train_in, train_in,
+
+    history = autoencoder.fit(train_in, train_in,
                     epochs=epochs,
                     batch_size=256,
                     shuffle=True,
                     verbose = verbose,
-                    validation_data=(test_in, test_in))
+                    validation_data=(test_in, test_in),
+                    callbacks = callback_list)
+    
+    plt.figure("Autoencoder Loss")
+    plt.plot(history.history['loss'])
 
 # encode and decode some digits
 # note that we take them from the *test* set
@@ -84,6 +99,37 @@ def autoencode(epochs, verbose, performance):
     plt.show()
 
 
+def rbm(epochs, hidden, eta):
+    print("Running the rbm...")
 
-#Use high to get the best performance. Use anything else to use what the labs tell us to use
-autoencode(10, 0, "high")
+    rbm = BernoulliRBM(n_components=hidden, learning_rate=eta, batch_size=100, n_iter=epochs, verbose = True, random_state = 1)
+    rbm.fit(train_in)
+
+    plt.figure("RBM mnist digits", figsize = (20, 4))
+    samples = [11, 2, 8, 15, 6, 10, 0, 4, 31, 9]
+    i = 0
+    for index in samples:
+        image = train_in[index]
+        reconstruction = rbm.gibbs(image).astype(int)
+
+        # display original
+        ax = plt.subplot(2, 10, i + 1)
+        plt.imshow(image.reshape(28, 28))
+        plt.gray()
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+        # display reconstruction
+        ax = plt.subplot(2, 10, i + 1 + 10)
+        plt.imshow(reconstruction.reshape(28, 28))
+        plt.gray()
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+        i = i + 1
+    plt.show()
+
+
+
+
+rbm(10, 50, 0.2)
