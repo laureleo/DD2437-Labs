@@ -31,6 +31,9 @@ class Hopfield(object):
             return(1)
         else: 
             return(-1)
+    def remove_self_connections(self):
+        for i in range(self.N):
+            self.W[i][i]=0
     
     def update_rule(self, x):
         x2 = np.copy(x)
@@ -51,12 +54,12 @@ class Hopfield(object):
                 s+=self.W[idx][j]*out[j]
             out[idx]=self.sign(s)
             
-            if it%500==0:
-                print("energy during iteration is:{}".format(self.energy(out)))
+#            if it%500==0:
+#                print("energy during iteration is:{}".format(self.energy(out)))
 #uncomment to plot every 500 it
-#            if it%500 == 0:
-#                plt.figure()
-#                plt.imshow(np.reshape(out, (32, 32)))
+            if it%500 == 0:
+                plt.figure()
+                plt.imshow(np.reshape(out, (32, 32)))
             it+=1
         
     
@@ -140,6 +143,6 @@ class Hopfield(object):
 #print("the attractors are")
 #for x in attractors:
 #    print(x)
-#    
-#
-#
+    
+
+
