@@ -23,14 +23,37 @@ class Hopfield(object):
                     self.W[i][j]+= patterns_list[mu][i]*patterns_list[mu][j]
                 if scale:
                     self.W[i][j]/=self.N
+    
+    def sparse_learning(self, patterns_list, rho=None):
+        P = len(patterns_list)
+        if rho==None:
+            rho = 0
+            for mu in range(P):
+                for i in range(self.N):
+                    rho+=patterns_list[mu][i]
+            rho/=self.N*P
         
-            
-    #def Network_recall(self, list_x):
+        for i in range(self.N):
+            for j in range(self.N):
+                for mu in range(P):
+                    self.W[i][j]+=(patterns_list[mu][i]-rho)*(patterns_list[mu][j]-rho)
+        
+    
+    def sparse_update(self, x, theta):
+        x2 = np.copy(x)
+        for i in range(len(x)):
+            x2[i]=0
+            for j in range(len(x)):
+                x2[i]+=self.W[i][j]*x[j]
+            x2[i]=0.5 + 0.5 *np.sign(x2[i] - theta)
+        return(x2)
+        
     def sign(self, x):
         if x >= 0:
             return(1)
         else: 
             return(-1)
+            
     def remove_self_connections(self):
         for i in range(self.N):
             self.W[i][i]=0
