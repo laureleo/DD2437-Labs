@@ -74,7 +74,6 @@ def autoencode(epochs, verbose, performance, hidden):
     
     plt.figure("Autoencoder Loss")
     plt.plot(history.history['loss'])
-    return autoencoder
 
 # encode and decode some digits
 # note that we take them from the *test* set
@@ -100,7 +99,7 @@ def autoencode(epochs, verbose, performance, hidden):
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
     plt.show()
-
+    return autoencoder
 
 
 def rbm(epochs, hidden, eta, graph_error_epoch_relation):
