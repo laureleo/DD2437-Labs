@@ -8,6 +8,7 @@ from keras.callbacks import EarlyStopping
 from keras import losses
 import matplotlib.cm as cm
 from sklearn.metrics import mean_squared_error
+import math
 
 
 train_in = np.loadtxt("./data/bindigit_trn.csv", dtype='i', delimiter=',')
@@ -55,12 +56,40 @@ def stacked_autoencoder(epochs, structure, verbose):
                    verbose=verbose)
     plt.figure("Stacked autoencoder loss")
     plt.plot(history.history['loss'])
-    plt.show()
+    #plt.show()
+    return model
 
 
 #Performance on stacked autoencoder classification with different amount of hidden layer
+#stacked_autoencoder(50, [], 1)
 #stacked_autoencoder(50, [150], 1)
 #stacked_autoencoder(50, [150, 100], 1)
 #stacked_autoencoder(50, [150, 100, 50], 1)
+
+# Show the weights for the hidden weights in the stacked autoencoder 
+structure = [169, 100, 49]
+sae = stacked_autoencoder(50, structure, 0)
+weights = sae.get_weights()
+print("Checking how the weight matrices are placed...")
+for i in range(11):
+    print(weights[i].shape)
+for j in range(6):
+    layer = j*2
+    print("Looking at layer {}".format(layer))
+    print("Weight matrix has shape {}".format(weights[layer].shape))
+    print("Converting weights from input nodes to output nodes into images...")
+    size = weights[layer].shape[0]
+    dim = int(math.sqrt(weights[layer].shape[1]))
+    imagecount = int(math.sqrt(size))
+    plt.figure("Autoencoder weight image", figsize = (20, 20))
+    for i in range(size):
+        # display weights
+        ax = plt.subplot(imagecount, imagecount, i + 1)
+        plt.imshow(weights[layer][i].reshape(dim, dim))
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+    plt.savefig('weight_{}.png'.format(str(weights[layer].shape)))
+    plt.show()
+#
 
 
