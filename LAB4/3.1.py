@@ -74,6 +74,7 @@ def autoencode(epochs, verbose, performance, hidden):
     
     plt.figure("Autoencoder Loss")
     plt.plot(history.history['loss'])
+    return autoencoder
 
 # encode and decode some digits
 # note that we take them from the *test* set
@@ -102,10 +103,10 @@ def autoencode(epochs, verbose, performance, hidden):
 
 
 
-def rbm(epochs, hidden, eta, reconstruct_only):
+def rbm(epochs, hidden, eta, graph_error_epoch_relation):
     print("Running the rbm...")
 
-    if(not reconstruct_only):
+    if(graph_error_epoch_relation):
         print("Graphing average error as a function of epoch...")
         error_list = []
         for i in range(epochs):
@@ -119,7 +120,7 @@ def rbm(epochs, hidden, eta, reconstruct_only):
                 total_error = total_error + error
 
             error_list.append(total_error/8000)
-
+        print(error_list)
         plt.figure("Epoch-Loss relation in RBM")
         plt.plot(error_list)
 
@@ -152,9 +153,40 @@ def rbm(epochs, hidden, eta, reconstruct_only):
 
         i = i + 1
     plt.show()
+    return rbm
 
 
 
+#Using sgd and mse
+#autoencode(50, 0, "high", 150)
 
-#autoencode(1, 0, "high", 10)
-rbm(1,50, 0.2, 1)
+#Using adadelta and binary cross entropy
+#autoencode(50, 0, "low", 150)
+
+# Show the weights for output neurons in the autoencoder as images
+ae = autoencode(50, 0, "high", 100)
+weights = ae.get_weights()[2]
+print(weights)
+#size = weights.shape[0]
+#plt.figure("Autoencoder weight image", figsize = (20, 20))
+#for i in range(size):
+#    # display weights
+#    ax = plt.subplot(10, 10, i + 1)
+#    plt.imshow(weights[i].reshape(28, 28))
+#    ax.get_xaxis().set_visible(False)
+#    ax.get_yaxis().set_visible(False)
+#plt.savefig("AEweights100.png")
+#plt.show()
+#
+
+# Show the weights for output neurons in the rbm
+rbm = rbm(50, 100, 0.2, 0)
+plt.figure("RBM weight image", figsize=(20, 20))
+for i, comp in enumerate(rbm.components_):
+    ax = plt.subplot(10, 10, i + 1)
+    plt.imshow(comp.reshape((28, 28)))
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+plt.savefig("H100.png")
+
+plt.show()
